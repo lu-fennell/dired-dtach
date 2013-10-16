@@ -5,13 +5,22 @@
 
 
 ;; TODO: make the default optional. When nil, nothing is presented by default
-(defcustom dired-dtach-default-launcher "gvfs-open"
+(defcustom dired-dtach-default-launcher "xdg-open"
   "The program used for the default suggestion of `dired-dtach-find-file'"
   )
 
 (defcustom dired-dtach-terminal-command "urxvt"
   "The terminal program used by `dired-dtach-open-terminal'"
   )
+
+(defcustom dired-dtach-launcher-list '("xdg-open")
+  "A list of programs that spawn by themselves and also not work with dtach")
+
+(defun dired-dtach-launcher-p (program)
+  (let ((trimmed-program
+	 (replace-regexp-in-string "\\`[ \t\n]*" "" (replace-regexp-in-string "[ \t\n]*\\'" "" program))))
+    (member trimmed-program dired-dtach-launcher-list)))
+
 
 ;; TODO: use url-encode-url for protecting the filename... subst. of
 ;; `/' is still needed
@@ -56,7 +65,9 @@ control socket will be used that somehow reflects CMD and FILES."
 		  (let ((dired-guess-shell-alist-user ;; set the default prompt
 			 `((".*"  dired-dtach-default-launcher))))
 		    (dired-read-shell-command "Open %s with: " nil file-list)));; TODO ask the user
-		(cmd (dired-shell-stuff-it (dired-dtach-command file-list program)
+		(cmd (dired-shell-stuff-it (if (dired-dtach-launcher-p program) ;; some programs spawn on their own (and do not work with dtach)
+					       program
+					     (dired-dtach-command file-list program))
 					   file-list
 					   nil ;; TODO: this is the `on-each' argument. Really nil?
 					   )))
