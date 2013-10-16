@@ -1,0 +1,22 @@
+* dired-dtach
+Utilities to spawn commands for opening files from dired. They require
+the [[http://dtach.sourceforge.net/][dtach]] tool. Currently two features are supported:
+1. Opening a terminal from directory the directory of the current dired
+   buffer (=dired-dtach-open-terminal=).
+2. Choose an application to open the file under point
+   (=dired-dtach-find-file=). In contrast to Dired's own =&= command,
+   the spawned applications are completely detached and do not do
+   things like exit when emacs exists, etc.
+Usage:
+#+BEGIN_EXAMPLE
+(require 'dired-dtach)
+(add-hook 'dired-mode-hook
+          (lambda ()
+            (define-key dired-mode-map "\C-m" 'dired-dtach-find-file)
+            (define-key dired-mode-map (kbd "C-c t")  'dired-dtach-open-terminal)
+#+END_EXAMPLE
+Customization:
+- dired-dtach-default-launcher :: default program to open files with
+- dired-dtach-terminal-command :: the terminal emulator to use when
+     opening terminals
+  
