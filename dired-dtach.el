@@ -32,6 +32,9 @@
 	 (result (replace-regexp-in-string "/" "__" result)))
     result))
 
+(defun dired-dtach-trim (s)
+  (substring s 0 10))
+
 ;; TODO: factor out the `files' argument and just take a prefix for the tmpfile
 ;; TODO: test
 (defun dired-dtach-command (files cmd)
@@ -40,8 +43,8 @@ should be spawned with input files FILES (a list). A fresh
 control socket will be used that somehow reflects CMD and FILES."
   (let* ((basedir (file-name-as-directory temporary-file-directory))
 	 (esc-files (mapcar 'dired-dtach-command-format-fname files))
-	 (socket-name (make-temp-name (eval `(concat ,@esc-files))))
-        )
+         (pre-socket-name (eval `(concat ,@esc-files)))
+	 (socket-name (make-temp-name (dired-dtach-trim pre-socket-name))))
     (concat "dtach -n '" basedir "dtach-" socket-name "' " cmd)))
 
 (defun dired-dtach-open-terminal ()
